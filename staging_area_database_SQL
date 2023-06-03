@@ -1,0 +1,131 @@
+-- Raw data table definition
+
+CREATE TABLE public.raw_data (
+	datetime varchar(50) NULL,
+	code varchar(50) NULL,
+	pt_ord_num varchar(50) NULL,
+	"action" varchar(50) NULL,
+	zonelevelname varchar(50) NULL,
+	clientcategory varchar(50) NULL,
+	price int4 NULL,
+	status_name varchar(50) NULL,
+	paymeanname varchar(50) NULL,
+	cashreg_num int4 NULL,
+	cashier_name varchar(50) NULL,
+	quant float4 NULL,
+	"cost" float4 NULL
+);
+
+
+-- Date dimension definition
+
+CREATE TABLE public.date_dim (
+	date_key varchar NOT NULL,
+	date_yyyymmdd varchar NOT NULL,
+	"day" varchar NOT NULL,
+	"month" varchar NOT NULL,
+	"year" varchar NOT NULL,
+	day_of_the_week varchar NOT NULL,
+	name_of_the_day varchar NOT NULL,
+	day_of_the_year varchar NOT NULL,
+	week_number varchar NOT NULL,
+	month_name varchar NOT NULL,
+	quarter varchar NOT NULL,
+	is_weekend bool NOT NULL,
+	holiday bool NOT NULL,
+	russian_month_name varchar NOT NULL,
+	russian_day_name varchar NOT NULL,
+	CONSTRAINT date_dim_pk PRIMARY KEY (date_key)
+);
+
+
+-- Time dimension definition
+
+CREATE TABLE public.time_dim (
+	time_key int4 NOT NULL,
+	time_period varchar NOT NULL,
+	CONSTRAINT time_dim_pk PRIMARY KEY (time_key)
+);
+
+
+-- Cash register dimension definition
+
+CREATE TABLE public.cash_register_dim (
+	cash_register_key int4 NOT NULL,
+	english_cash_register_name varchar NOT NULL,
+	russian_cash_register_name varchar NOT NULL,
+	cash_register_location varchar NULL,
+	CONSTRAINT cashier_dim_pk PRIMARY KEY (cash_register_key)
+);
+
+
+-- Product dimension definition
+
+CREATE TABLE public.product_dim (
+	product_key int4 NOT NULL GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE),
+	russian_product_name varchar NOT NULL,
+	number_of_entries_permitted int4 NOT NULL,
+	mat_museum bool NULL,
+	mvt_museum bool NULL,
+	avia_museum bool NULL,
+	pr_museum bool NULL,
+	product_category varchar NOT NULL,
+	CONSTRAINT product_dim_pk PRIMARY KEY (product_key)
+);
+
+
+-- Visitor category dimension definition
+
+CREATE TABLE public.visitor_category_dim (
+	category_key int4 NOT NULL GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE),
+	category_name varchar NOT NULL,
+	CONSTRAINT visitor_category_dim_pk PRIMARY KEY (category_key)
+);
+
+
+-- Payment method dimension definition
+
+CREATE TABLE public.payment_method_dim (
+	payment_key int4 NOT NULL GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE),
+	english_payment_method_name varchar NOT NULL,
+	russian_payment_method_name varchar NOT NULL,
+	CONSTRAINT payment_method_dim_pk PRIMARY KEY (payment_key)
+);
+
+
+-- Transaction status dimension definition
+
+CREATE TABLE public.status_dim (
+	status_key int4 NOT NULL GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE),
+	status_name varchar NOT NULL,
+	CONSTRAINT status_dim_pk PRIMARY KEY (status_key)
+);
+
+
+-- Ticket sale fact table definition
+
+CREATE TABLE public.ticket_sale_fact (
+	date_key varchar NOT NULL,
+	receipt_number varchar NOT NULL,
+	ticket_number varchar NOT NULL,
+	cash_register_key int4 NOT NULL,
+	product_key int4 NOT NULL,
+	price int4 NOT NULL,
+	quantitiy int4 NOT NULL,
+	total_revenue int4 NOT NULL,
+	status_key int4 NOT NULL,
+	time_key int4 NOT NULL,
+	visitors_category int4 NOT NULL,
+	payment_method int4 NOT NULL
+);
+
+
+-- Ticket sale fact table foreign keys
+
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_fk FOREIGN KEY (time_key) REFERENCES public.time_dim(time_key);
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_fk_3 FOREIGN KEY (date_key) REFERENCES public.date_dim(date_key);
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_fk_5 FOREIGN KEY (visitors_category) REFERENCES public.visitor_category_dim(category_key);
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_fk_6 FOREIGN KEY (payment_method) REFERENCES public.payment_method_dim(payment_key);
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_table_fk_1 FOREIGN KEY (cash_register_key) REFERENCES public.cash_register_dim(cash_register_key);
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_table_fk_2 FOREIGN KEY (product_key) REFERENCES public.product_dim(product_key);
+ALTER TABLE public.ticket_sale_fact ADD CONSTRAINT ticket_sale_fact_table_fk_4 FOREIGN KEY (status_key) REFERENCES public.status_dim(status_key);
