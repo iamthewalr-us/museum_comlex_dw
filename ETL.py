@@ -126,16 +126,16 @@ with DAG(
     catchup=False
 ) as dag:
     
-    # 1. Fill up date table
+    # 1. Fill date tables
 
-    # 1.1. Extract data
+    # 1.1. Extract date data
     task_extract_date_data = PythonOperator(
         task_id='extract_date_data',
         python_callable=extract_date_data,
         do_xcom_push=True
     )
 
-    # 1.2. Process the data
+    # 1.2. Process date data
     task_process_date_data = PythonOperator(
         task_id='process_date_data',
         python_callable=process_date_data,
@@ -257,11 +257,6 @@ with DAG(
 )
 
 
-
-
-
-    
-    
 
 
 
