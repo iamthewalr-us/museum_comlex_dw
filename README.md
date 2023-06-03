@@ -1,1 +1,2 @@
-# museum_comlex_dw
+# MASTER’S THESIS
+## Constructing a Data Warehouse for a Museum
